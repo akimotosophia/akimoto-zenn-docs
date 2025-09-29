@@ -3,8 +3,10 @@ title: "AI駆動でZenn執筆環境を構築してみた"
 emoji: "🤖"
 type: "tech"
 topics: ["AI", "Zenn", "GitHub", "CLI"]
-published: false
+published: true
 ---
+
+※以下の記事はgemini-2.5-proを用いて作成しております。
 
 ## はじめに
 
