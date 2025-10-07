@@ -25,6 +25,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `rules/` - プロジェクト運用ルール
   - `zenn-writing-rules.md` - 記事執筆ルール
   - `git-commit-rules.md` - コミットメッセージルール
+- `draft/` - 記事ファイルのドラフトとなるバーバラミント流ピラミッド型のメモ(Markdown、mermaid)
 
 ## 記事作成の重要なルール
 
