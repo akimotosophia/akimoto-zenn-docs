@@ -2,7 +2,7 @@
 title: "AI駆動でZenn執筆環境を構築してみた"
 emoji: "🤖"
 type: "tech"
-topics: ["AI", "Zenn", "GitHub", "CLI"]
+topics: ["AI", "Zenn", "GitHub", "CLI", "zennfes2025ai"]
 published: true
 ---
 
