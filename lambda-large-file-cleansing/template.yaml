@@ -1,0 +1,130 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda Large File Cleansing
+
+Globals:
+  Function:
+    Timeout: 900
+    MemorySize: 10240
+    Runtime: python3.12
+    Environment:
+      Variables:
+        LOG_LEVEL: INFO
+        SOURCE_BUCKET: !Sub ${AWS::StackName}-test-data-${AWS::AccountId}
+        DEST_BUCKET: !Sub ${AWS::StackName}-cleansed-data-${AWS::AccountId}
+
+Resources:
+  # S3 Bucket for test data (without notification configuration)
+  TestDataBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: FileClensingFunctionPermission
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-test-data-${AWS::AccountId}
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldFiles
+            Status: Enabled
+            ExpirationInDays: 7
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt FileClensingFunction.Arn
+
+  # S3 Bucket for cleansed data
+  CleansedDataBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${AWS::StackName}-cleansed-data-${AWS::AccountId}
+      VersioningConfiguration:
+        Status: Enabled
+
+  # Lambda Function for file cleansing
+  FileClensingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-file-cleansing
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Description: Lambda function for large file cleansing
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource: '*'
+
+  # Lambda Permission for S3 to invoke the function
+  FileClensingFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref FileClensingFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${AWS::StackName}-test-data-${AWS::AccountId}
+
+  # Lambda Function with lower memory for comparison
+  FileClensingFunctionLowMem:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-file-cleansing-low-mem
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Description: Lambda function for file cleansing (Low Memory)
+      MemorySize: 512
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource: '*'
+
+  # Lambda Function with medium memory for comparison
+  FileClensingFunctionMediumMem:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-file-cleansing-medium-mem
+      CodeUri: src/
+      Handler: app.lambda_handler
+      Description: Lambda function for file cleansing (Medium Memory)
+      MemorySize: 3008
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+                - s3:PutObject
+                - s3:DeleteObject
+              Resource: '*'
+
+Outputs:
+  TestDataBucketName:
+    Description: S3 bucket for test data
+    Value: !Ref TestDataBucket
+
+  CleansedDataBucketName:
+    Description: S3 bucket for cleansed data
+    Value: !Ref CleansedDataBucket
+
+  FileClensingFunctionArn:
+    Description: Lambda Function ARN (High Memory - 10GB)
+    Value: !GetAtt FileClensingFunction.Arn
+
+  FileClensingFunctionLowMemArn:
+    Description: Lambda Function ARN (Low Memory - 512MB)
+    Value: !GetAtt FileClensingFunctionLowMem.Arn
+
+  FileClensingFunctionMediumMemArn:
+    Description: Lambda Function ARN (Medium Memory - 3GB)
+    Value: !GetAtt FileClensingFunctionMediumMem.Arn

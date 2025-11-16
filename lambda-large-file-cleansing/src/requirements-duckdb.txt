@@ -1,0 +1,5 @@
+boto3
+
+# DuckDBはLambda Layerから提供されるため、ここには含めない
+# Lambda Layer ARN: arn:aws:lambda:ap-northeast-1:911510765542:layer:duckdb-python312-x86_64:1
+# 詳細は lambda-layer-setup.md を参照
