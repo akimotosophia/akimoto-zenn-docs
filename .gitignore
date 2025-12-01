@@ -1,2 +1,4 @@
 node_modules
 .DS_Store
+lambda-large-file-cleansing/
+validation/
