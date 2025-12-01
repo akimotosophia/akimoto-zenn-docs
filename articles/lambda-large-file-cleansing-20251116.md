@@ -3,7 +3,7 @@ title: "AWS Lambdaでどこまで大容量ファイルのクレンジングが�
 emoji: "🚀"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["AWS", "Lambda", "サーバーレス", "データ処理"]
-published: false
+published: true
 ---
 
 ## はじめに
